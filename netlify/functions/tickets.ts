@@ -2,9 +2,9 @@ import { Handler } from '@netlify/functions';
 import { neon } from '@neondatabase/serverless';
 import * as jwt from 'jsonwebtoken';
 
-const DATABASE_URL = process.env.DATABASE_URL!;
-const sql = neon(DATABASE_URL);
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_JLClkY1g8umb@ep-patient-grass-ajpo9ogw-pooler.c-3.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
 const JWT_SECRET = process.env.JWT_SECRET || 'sipekal_secret_key_2024_fresh';
+const sql = neon(DATABASE_URL);
 
 const headers = {
   'Access-Control-Allow-Origin': '*',
@@ -66,21 +66,21 @@ export const handler: Handler = async (event) => {
       }
 
       if (body.action === 'assign') {
-        if (user.role !== 'admin') return { statusCode: 403, headers, body: 'Forbidden' };
+        if (user.role !== 'admin') return { statusCode: 403, headers, body: JSON.stringify({ error: 'Forbidden' }) };
         const result = await sql`UPDATE tickets SET teknisi_id = ${body.teknisi_id}, status = 'ditugaskan', updated_at = NOW()
           WHERE id = ${body.ticket_id} RETURNING *`;
         return { statusCode: 200, headers, body: JSON.stringify(result[0]) };
       }
 
       if (body.action === 'accept') {
-        if (user.role !== 'teknisi') return { statusCode: 403, headers, body: 'Forbidden' };
+        if (user.role !== 'teknisi') return { statusCode: 403, headers, body: JSON.stringify({ error: 'Forbidden' }) };
         const result = await sql`UPDATE tickets SET status = 'diproses', updated_at = NOW()
           WHERE id = ${body.ticket_id} AND teknisi_id = ${user.id} RETURNING *`;
         return { statusCode: 200, headers, body: JSON.stringify(result[0]) };
       }
 
       if (body.action === 'complete') {
-        if (user.role !== 'teknisi') return { statusCode: 403, headers, body: 'Forbidden' };
+        if (user.role !== 'teknisi') return { statusCode: 403, headers, body: JSON.stringify({ error: 'Forbidden' }) };
         const result = await sql`UPDATE tickets SET status = 'selesai_teknisi',
           catatan_perbaikan = ${body.catatan_perbaikan}, foto_selesai = ${body.foto_selesai},
           tgl_selesai = NOW(), updated_at = NOW()
@@ -89,7 +89,7 @@ export const handler: Handler = async (event) => {
       }
 
       if (body.action === 'close') {
-        if (user.role !== 'user') return { statusCode: 403, headers, body: 'Forbidden' };
+        if (user.role !== 'user') return { statusCode: 403, headers, body: JSON.stringify({ error: 'Forbidden' }) };
         const result = await sql`UPDATE tickets SET status = 'tertutup', updated_at = NOW()
           WHERE id = ${body.ticket_id} AND pelapor_id = ${user.id} RETURNING *`;
         return { statusCode: 200, headers, body: JSON.stringify(result[0]) };
@@ -97,8 +97,8 @@ export const handler: Handler = async (event) => {
     }
 
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
-  } catch (error) {
-    console.error('[TICKETS] Error:', error);
+  } catch (error: any) {
+    console.error('[TICKETS] Error:', error?.message || error);
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal Server Error' }) };
   }
 };

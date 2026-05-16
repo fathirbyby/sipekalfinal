@@ -2,9 +2,9 @@ import { Handler } from '@netlify/functions';
 import { neon } from '@neondatabase/serverless';
 import * as jwt from 'jsonwebtoken';
 
-const DATABASE_URL = process.env.DATABASE_URL!;
-const sql = neon(DATABASE_URL);
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_JLClkY1g8umb@ep-patient-grass-ajpo9ogw-pooler.c-3.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
 const JWT_SECRET = process.env.JWT_SECRET || 'sipekal_secret_key_2024_fresh';
+const sql = neon(DATABASE_URL);
 
 const headers = {
   'Access-Control-Allow-Origin': '*',
@@ -84,8 +84,8 @@ export const handler: Handler = async (event) => {
         })
       };
     }
-  } catch (error) {
-    console.error('[DASHBOARD] Error:', error);
+  } catch (error: any) {
+    console.error('[DASHBOARD] Error:', error?.message || error);
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal Server Error' }) };
   }
 };
