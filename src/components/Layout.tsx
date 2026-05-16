@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  LogOut, 
-  LayoutDashboard, 
-  ClipboardList, 
-  Users, 
+import {
+  LogOut,
+  LayoutDashboard,
+  ClipboardList,
+  Users,
   Bell,
   Activity
 } from 'lucide-react';
@@ -41,14 +41,12 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      {/* Sidebar */}
       <aside className="w-64 bg-slate-900 text-white hidden md:flex flex-col sticky top-0 h-screen">
         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
           <Activity className="text-blue-500" />
           <span className="font-bold text-xl tracking-tight">SIPEKAL</span>
         </div>
-        
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 p-4 space-y-1">
           {menuItems[role].map((item, idx) => (
             <button
               key={idx}
@@ -60,15 +58,14 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
             </button>
           ))}
         </nav>
-        
         <div className="p-4 border-t border-slate-800">
           <div className="flex items-center gap-3 p-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">
-              {user.nama_lengkap?.[0]}
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white">
+              {user.nama_lengkap?.[0] || '?'}
             </div>
             <div className="overflow-hidden">
               <p className="text-sm font-medium truncate">{user.nama_lengkap}</p>
-              <p className="text-xs text-slate-500 capitalize">{user.role}</p>
+              <p className="text-xs text-slate-400 capitalize">{user.role}</p>
             </div>
           </div>
           <button
@@ -81,7 +78,6 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
         <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10">
           <h2 className="text-lg font-semibold text-slate-800 md:hidden">SIPEKAL</h2>
@@ -91,7 +87,6 @@ const Layout: React.FC<LayoutProps> = ({ children, role }) => {
             </button>
           </div>
         </header>
-        
         <div className="p-6">
           {children}
         </div>

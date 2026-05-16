@@ -6,17 +6,22 @@ export const apiFetch = async (path: string, options: any = {}) => {
     ...options.headers,
   };
 
-  const response = await fetch(`/.netlify/functions${path}`, {
-    ...options,
-    headers,
-  });
+  try {
+    const response = await fetch(`/.netlify/functions${path}`, {
+      ...options,
+      headers,
+    });
 
-  if (response.status === 401 && path !== '/auth') {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
-    return;
+    if (response.status === 401 && path !== '/auth') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+      return null;
+    }
+
+    return response.json();
+  } catch (err) {
+    console.error('[API] Fetch error:', err);
+    return null;
   }
-
-  return response.json();
 };
